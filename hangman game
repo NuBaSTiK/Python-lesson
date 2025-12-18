@@ -1,0 +1,47 @@
+import random
+
+words = ["apple", "python", "synopsys", "animal", "student", "university"]
+word = random.choice(words)
+
+guessed = []
+tries = 6
+
+print("Hangman game")
+print("Guess the word. Number of letters:", len(word))
+
+while tries > 0:
+    display_word = ""
+    for letter in word:
+        if letter in guessed:
+            display_word += letter
+        else:
+            display_word += "_"
+
+    print("\nWord:", display_word)
+    print("Remaining attempts:", tries)
+
+    if "_" not in display_word:
+        print("You won!")
+        break
+
+    guess = input("Type a letter: ").lower()
+
+    if len(guess) != 1:
+        print("Type one letter!")
+        continue
+
+    if guess in guessed:
+        print("You already wrote this letter")
+        continue
+
+    guessed.append(guess)
+
+    if guess not in word:
+        print("Incorrect!")
+        tries -= 1
+    else:
+        print("Correct!")
+
+if tries == 0:
+    print("\nYou lose")
+    print("The hidden word was:", word)
