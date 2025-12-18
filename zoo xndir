@@ -1,0 +1,84 @@
+class Food:
+    def __init__(self, name, food_type):
+        self.name = name
+        self.food_type = food_type
+
+class Animal:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+        self.hungry = True
+
+    def eat(self, food):
+        print(self.name, "eats", food.name)
+        self.hungry = False
+
+class Carnivore(Animal):
+    def __init__(self, name, age):
+        super().__init__(name, age)
+        self.type = "carnivore"
+
+    def eat(self, food):
+        if food.food_type == "meat":
+            print(self.name, "likes meat")
+            self.hungry = False
+        else:
+            print(self.name, "doen't eat plants!")
+
+class Herbivore(Animal):
+    def __init__(self, name, age):
+        super().__init__(name, age)
+        self.type = "herbivore"
+
+    def eat(self, food):
+        if food.food_type == "plant":
+            print(self.name, "eats plants")
+            self.hungry = False
+        else:
+            print(self.name, "doesn't eat plants!")
+
+class Cage:
+    def __init__(self, number):
+        self.number = number
+        self.animals = []
+
+    def add_animal(self, animal):
+        self.animals.append(animal)
+        print(animal.name, "added to the cage", self.number)
+
+    def show_animals(self):
+        print("Cage", self.number)
+        for a in self.animals:
+            print("-", a.name)
+
+class Worker:
+    def __init__(self, name):
+        self.name = name
+
+    def feed_animal(self, animal, food):
+        print(self.name, "feeds", animal.name)
+        animal.eat(food)
+
+
+
+meat = Food("Steak", "meat")
+grass = Food("Grass", "plant")
+
+lion = Carnivore("Lion", 5)
+cow = Herbivore("Cow", 3)
+
+cage1 = Cage(1)
+cage2 = Cage(2)
+
+cage1.add_animal(lion)
+cage2.add_animal(cow)
+
+worker = Worker("Artyom")
+
+cage1.show_animals()
+cage2.show_animals()
+
+worker.feed_animal(lion, meat)
+worker.feed_animal(cow, grass)
+
+worker.feed_animal(lion, grass)
