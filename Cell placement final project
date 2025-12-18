@@ -1,0 +1,89 @@
+import random
+
+#netlist
+netlist = """
+.SUBCKT inverter in out vdd gnd
+M1 out in vdd vdd PMOS
+M2 out in gnd gnd NMOS
+.ENDS inverter
+
+.SUBCKT top vin vout vdd gnd
+X1 vin vout vdd gnd inverter
+X2 n1  vout vdd gnd inverter
+.ENDS top
+"""
+
+
+cells = []
+nets = {}
+
+for line in netlist.splitlines():
+    line = line.strip()
+    if line.startswith("X"):
+        parts = line.split()
+        cell = parts[0]
+        connections = parts[1:-1]
+
+        cells.append(cell)
+        for net in connections:
+            nets.setdefault(net, []).append(cell)
+
+
+placement = {cell: (random.randint(0, 10), random.randint(0, 10)) for cell in cells}
+
+
+def hpwl(net_cells):
+    if len(net_cells) < 2:
+        return 0
+    xs = [placement[c][0] for c in net_cells]
+    ys = [placement[c][1] for c in net_cells]
+    return (max(xs) - min(xs)) + (max(ys) - min(ys))
+
+def total_hpwl():
+    return sum(hpwl(net_cells) for net_cells in nets.values())
+
+
+print("Cells:", cells)
+print("Nets:", nets)
+print("Initial placement:", placement)
+print("Developers note: The script will print only steps with HPWL improvements")
+best_hpwl = total_hpwl()
+best_placement = placement.copy()
+print(f"Step 0: HPWL = {best_hpwl}, Placement = {placement}")
+
+prev_hpwl = best_hpwl
+real_step = 1
+
+while real_step <= 50:
+    cell = random.choice(cells)
+    old_pos = placement[cell]
+    old_hpwl = total_hpwl()
+
+    new_pos = (
+        old_pos[0] + random.choice([-1, 0, 1]),
+        old_pos[1] + random.choice([-1, 0, 1])
+    )
+
+    if any(other != cell and new_pos == placement[other] for other in cells):
+        continue
+
+    placement[cell] = new_pos
+    new_hpwl = total_hpwl()
+
+    if new_hpwl > old_hpwl:
+        placement[cell] = old_pos
+        current_hpwl = old_hpwl
+    else:
+        current_hpwl = new_hpwl
+        if current_hpwl < best_hpwl:
+            best_hpwl = current_hpwl
+            best_placement = placement.copy()
+
+    if current_hpwl != prev_hpwl:
+        print(f"Step {real_step}: HPWL = {current_hpwl}, Placement = {placement}")
+        prev_hpwl = current_hpwl
+
+    real_step += 1
+
+print("\nBest HPWL:", best_hpwl)
+print("Best placement:", best_placement)
